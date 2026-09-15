@@ -6,6 +6,7 @@ config/youtube_token.json
 # Generated assets
 assets/roteiros/*.json
 assets/audio/**/*.mp3
+assets/audio/**/*.timing.json
 assets/imagens/**/*.png
 assets/output/**/*.mp4
 assets/output/_tmp/
