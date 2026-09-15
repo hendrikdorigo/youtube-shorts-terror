@@ -12,12 +12,14 @@ do roteiro até o upload no YouTube.
         ↓
 03_generate_images.py   → imagens estilo storybook (Midjourney/Ideogram/DALL-E — API externa)
         ↓
-04_assemble_video.py    → monta o vídeo (ffmpeg: zoom/pan + áudio + legendas + música)
+03b_animate_scenes.py   → (opcional) anima cada cena com IA (Runway) — pula se RUNWAY_API_KEY vazia
+        ↓
+04_assemble_video.py    → monta o vídeo (ffmpeg: clipe animado ou zoom/pan + áudio + legendas + música)
         ↓
 05_upload_youtube.py    → publica no YouTube como Short (YouTube Data API v3)
 ```
 
-`run_pipeline.py` roda as 5 etapas em sequência para uma lenda por vez.
+`run_pipeline.py` roda as etapas em sequência para uma lenda por vez.
 
 ## Estrutura de pastas
 
@@ -29,14 +31,17 @@ folclore-shorts/
 │   ├── 01_generate_script.py
 │   ├── 02_generate_audio.py
 │   ├── 03_generate_images.py
+│   ├── 03b_animate_scenes.py
 │   ├── 04_assemble_video.py
 │   ├── 05_upload_youtube.py
 │   └── run_pipeline.py
 ├── assets/
 │   ├── roteiros/    ← roteiros gerados (.json)
-│   ├── audio/        ← narrações geradas (.mp3)
+│   ├── audio/        ← narrações geradas (.mp3 + .timing.json)
 │   ├── imagens/       ← imagens geradas por lenda (.png)
-│   └── output/        ← vídeos finais (.mp4)
+│   ├── video_cenas/    ← (opcional) clipes animados por cena (.mp4)
+│   ├── musica/          ← trilha de fundo royalty-free (opcional)
+│   └── output/            ← vídeos finais (.mp4)
 └── requirements.txt
 ```
 
@@ -60,6 +65,23 @@ aqui no chat e colar o JSON em `assets/roteiros/`).
 Depois de validar o formato, é só trocar `TTS_PROVIDER=elevenlabs` e/ou
 `IMAGE_PROVIDER=ideogram` no `.env` para subir a qualidade — sem mexer em
 nenhum script.
+
+## Animação das cenas (opcional)
+
+Por padrão, cada cena vira um vídeo com zoom/pan (Ken Burns) sobre a imagem
+estática. Pra ter movimento de verdade (câmera, personagem, ambiente — tipo
+esse [exemplo](https://youtube.com/shorts/HwfckoQ-peQ)), preencha
+`RUNWAY_API_KEY` no `.env` com uma chave da [Runway API](https://dev.runwayml.com/)
+(precisa de conta e créditos pagos). Nesse modo, a etapa `03b_animate_scenes.py`
+manda a imagem de cada cena pro Gen-4 Turbo com um prompt de movimento e baixa
+o clipe gerado.
+
+**Isso é bem mais caro** que o resto do pipeline — Gen-4 Turbo cobra por
+segundo de vídeo gerado (confira o preço atual em
+[docs.dev.runwayml.com](https://docs.dev.runwayml.com/api-details/pricing/)
+antes de rodar em lote) e demora minutos por cena, não segundos. Deixe
+`RUNWAY_API_KEY` em branco pra pular essa etapa e continuar no modo
+estático+zoom, sem custo extra.
 
 ## Música de fundo (opcional)
 

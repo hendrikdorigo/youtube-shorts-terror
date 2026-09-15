@@ -24,6 +24,7 @@ load_dotenv(BASE_DIR / "config" / ".env")
 ROTEIRO_DIR = BASE_DIR / "assets" / "roteiros"
 AUDIO_DIR = BASE_DIR / "assets" / "audio"
 IMG_DIR = BASE_DIR / "assets" / "imagens"
+VIDEO_CENAS_DIR = BASE_DIR / "assets" / "video_cenas"
 OUTPUT_DIR = BASE_DIR / "assets" / "output"
 TMP_DIR = BASE_DIR / "assets" / "output" / "_tmp"
 
@@ -130,12 +131,14 @@ def legenda_estatica_filtro(fontfile: str, texto_legenda: str) -> str:
 
 
 def montar_cena(
-    imagem: Path, audio: Path, destino: Path, texto_legenda: str, palavras: list[dict] | None
+    imagem: Path,
+    audio: Path,
+    destino: Path,
+    texto_legenda: str,
+    palavras: list[dict] | None,
+    video_cena: Path | None,
 ):
     dur = duracao_audio(audio)
-    # Zoom lento (Ken Burns): zoompan do ffmpeg, com zoom crescente ao longo da cena
-    fps = 30
-    frames = int(dur * fps)
 
     # Caminho da fonte pro filtro ffmpeg: barras normais e ":" escapado
     # (ex: Windows "C:\Windows\Fonts\arial.ttf" -> "C\:/Windows/Fonts/arial.ttf")
@@ -146,16 +149,31 @@ def montar_cena(
     else:
         legenda_filtros = legenda_estatica_filtro(fontfile, texto_legenda)
 
-    filtro = (
-        f"[0:v]scale=8000:-1,"
-        f"zoompan=z='min(zoom+0.0015,1.3)':d={frames}:s={LARGURA}x{ALTURA}:fps={fps},"
-        f"{legenda_filtros}[vout]"
-    )
+    if video_cena and video_cena.exists():
+        # Clipe animado (etapa 3b, Runway): ajusta pro enquadramento 9:16 e
+        # loopa/corta pra bater exatamente com a duração da narração.
+        entrada = ["-stream_loop", "-1", "-i", str(video_cena)]
+        # fps=30 garante que todas as cenas fiquem no mesmo frame rate antes
+        # de concatenar (o Runway pode entregar em outro fps).
+        filtro = (
+            f"[0:v]scale=-2:{ALTURA},crop={LARGURA}:{ALTURA},fps=30,"
+            f"{legenda_filtros}[vout]"
+        )
+    else:
+        # Fallback: imagem estática com zoom/pan (Ken Burns)
+        entrada = ["-loop", "1", "-i", str(imagem)]
+        fps = 30
+        frames = int(dur * fps)
+        filtro = (
+            f"[0:v]scale=8000:-1,"
+            f"zoompan=z='min(zoom+0.0015,1.3)':d={frames}:s={LARGURA}x{ALTURA}:fps={fps},"
+            f"{legenda_filtros}[vout]"
+        )
 
     subprocess.run(
         [
             "ffmpeg", "-y",
-            "-loop", "1", "-i", str(imagem),
+            *entrada,
             "-i", str(audio),
             "-filter_complex", filtro,
             "-map", "[vout]", "-map", "1:a",
@@ -230,13 +248,17 @@ def main():
         imagem = IMG_DIR / slug / f"cena_{i}.png"
         audio = AUDIO_DIR / slug / f"cena_{i}.mp3"
         timing_path = AUDIO_DIR / slug / f"cena_{i}.timing.json"
+        video_cena = VIDEO_CENAS_DIR / slug / f"cena_{i}.mp4"
         clip_destino = TMP_DIR / f"{slug}_cena_{i}.mp4"
 
         palavras = None
         if timing_path.exists():
             palavras = json.loads(timing_path.read_text(encoding="utf-8"))
 
-        montar_cena(imagem, audio, clip_destino, cena["texto"], palavras)
+        montar_cena(
+            imagem, audio, clip_destino, cena["texto"], palavras,
+            video_cena if video_cena.exists() else None,
+        )
         clips.append(clip_destino)
         print(f"Cena {i} montada: {clip_destino}")
 

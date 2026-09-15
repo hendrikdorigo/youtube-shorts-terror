@@ -8,6 +8,7 @@ assets/roteiros/*.json
 assets/audio/**/*.mp3
 assets/audio/**/*.timing.json
 assets/imagens/**/*.png
+assets/video_cenas/**/*.mp4
 assets/output/**/*.mp4
 assets/output/_tmp/
 assets/musica/*.mp3

@@ -37,6 +37,7 @@ def main():
         "01_generate_script.py",
         "02_generate_audio.py",
         "03_generate_images.py",
+        "03b_animate_scenes.py",  # pula sozinha se RUNWAY_API_KEY não estiver no .env
         "04_assemble_video.py",
     ]
     if not args.sem_upload:
