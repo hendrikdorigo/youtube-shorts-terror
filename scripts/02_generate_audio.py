@@ -83,9 +83,21 @@ def main():
     out_dir = AUDIO_DIR / slug
     out_dir.mkdir(parents=True, exist_ok=True)
 
+    max_tentativas = 3
     for i, cena in enumerate(roteiro["cenas"], start=1):
         destino = out_dir / f"cena_{i}.mp3"
-        gerar_audio(cena["texto"], destino)
+
+        for tentativa in range(1, max_tentativas + 1):
+            gerar_audio(cena["texto"], destino)
+            if destino.exists() and destino.stat().st_size > 0:
+                break
+            print(f"Aviso: áudio da cena {i} saiu vazio (tentativa {tentativa}/{max_tentativas})")
+        else:
+            raise RuntimeError(
+                f"Falha ao gerar áudio da cena {i} após {max_tentativas} tentativas "
+                f"(arquivo ficou vazio: {destino}). Verifique sua conexão e tente novamente."
+            )
+
         print(f"Áudio da cena {i} salvo em: {destino}")
 
 
