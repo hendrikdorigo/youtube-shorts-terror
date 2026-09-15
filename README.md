@@ -12,7 +12,7 @@ do roteiro até o upload no YouTube.
         ↓
 03_generate_images.py   → imagens estilo storybook (Midjourney/Ideogram/DALL-E — API externa)
         ↓
-04_assemble_video.py    → monta o vídeo (ffmpeg: zoom/pan + áudio + legendas)
+04_assemble_video.py    → monta o vídeo (ffmpeg: zoom/pan + áudio + legendas + música)
         ↓
 05_upload_youtube.py    → publica no YouTube como Short (YouTube Data API v3)
 ```
@@ -60,6 +60,15 @@ aqui no chat e colar o JSON em `assets/roteiros/`).
 Depois de validar o formato, é só trocar `TTS_PROVIDER=elevenlabs` e/ou
 `IMAGE_PROVIDER=ideogram` no `.env` para subir a qualidade — sem mexer em
 nenhum script.
+
+## Música de fundo (opcional)
+
+Pra tocar uma trilha macabra baixinho por baixo da narração, baixe uma faixa
+royalty-free (ex: [YouTube Audio Library](https://www.youtube.com/audiolibrary)
+ou [Pixabay Music](https://pixabay.com/music/search/horror/), buscando por
+"horror"/"macabre"/"dark ambient"), salve em `assets/musica/trilha.mp3` e
+confirme o caminho em `BACKGROUND_MUSIC_FILE` no `.env`. Deixe em branco pra
+não usar música.
 
 ## Publicação no YouTube
 

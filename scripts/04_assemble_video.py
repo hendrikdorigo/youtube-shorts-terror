@@ -182,6 +182,38 @@ def concatenar_cenas(clips: list[Path], destino_final: Path):
     )
 
 
+def resolver_musica_fundo() -> Path | None:
+    caminho = os.environ.get("BACKGROUND_MUSIC_FILE")
+    if not caminho:
+        return None
+    caminho_path = Path(caminho)
+    if not caminho_path.exists():
+        print(f"Aviso: BACKGROUND_MUSIC_FILE aponta pra um arquivo que não existe: {caminho_path}")
+        return None
+    return caminho_path
+
+
+def adicionar_musica_fundo(video_sem_musica: Path, musica: Path, destino_final: Path):
+    volume = os.environ.get("BACKGROUND_MUSIC_VOLUME", "0.12")
+    subprocess.run(
+        [
+            "ffmpeg", "-y",
+            "-i", str(video_sem_musica),
+            "-stream_loop", "-1", "-i", str(musica),
+            "-filter_complex",
+            (
+                f"[1:a]volume={volume}[musica_baixa];"
+                f"[0:a][musica_baixa]amix=inputs=2:duration=first:dropout_transition=2[aout]"
+            ),
+            "-map", "0:v", "-map", "[aout]",
+            "-c:v", "copy", "-c:a", "aac",
+            "-shortest",
+            str(destino_final),
+        ],
+        check=True,
+    )
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--lenda", required=True)
@@ -209,7 +241,15 @@ def main():
         print(f"Cena {i} montada: {clip_destino}")
 
     video_final = OUTPUT_DIR / f"{slug}.mp4"
-    concatenar_cenas(clips, video_final)
+    musica = resolver_musica_fundo()
+
+    if musica:
+        video_sem_musica = TMP_DIR / f"{slug}_sem_musica.mp4"
+        concatenar_cenas(clips, video_sem_musica)
+        adicionar_musica_fundo(video_sem_musica, musica, video_final)
+        print(f"Música de fundo adicionada: {musica}")
+    else:
+        concatenar_cenas(clips, video_final)
 
     print(f"\nVídeo final gerado em: {video_final}")
 

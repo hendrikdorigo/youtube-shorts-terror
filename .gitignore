@@ -10,6 +10,7 @@ assets/audio/**/*.timing.json
 assets/imagens/**/*.png
 assets/output/**/*.mp4
 assets/output/_tmp/
+assets/musica/*.mp3
 !assets/**/.gitkeep
 
 # Python
