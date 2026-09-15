@@ -10,11 +10,16 @@ Uso:
 """
 import argparse
 import json
+import os
+import platform
 import subprocess
 import textwrap
 from pathlib import Path
 
+from dotenv import load_dotenv
+
 BASE_DIR = Path(__file__).parent.parent
+load_dotenv(BASE_DIR / "config" / ".env")
 ROTEIRO_DIR = BASE_DIR / "assets" / "roteiros"
 AUDIO_DIR = BASE_DIR / "assets" / "audio"
 IMG_DIR = BASE_DIR / "assets" / "imagens"
@@ -23,6 +28,27 @@ TMP_DIR = BASE_DIR / "assets" / "output" / "_tmp"
 
 LARGURA, ALTURA = 1080, 1920  # 9:16
 LARGURA_MAX_LEGENDA = 28  # caracteres por linha, antes de quebrar
+
+# drawtext do ffmpeg depende do fontconfig pra achar fonte por nome, e nem
+# todo build (principalmente no Windows) vem com fontconfig configurado.
+# Por isso apontamos direto pro arquivo .ttf, evitando essa dependência.
+FONTES_PADRAO_POR_SO = {
+    "Windows": r"C:\Windows\Fonts\arial.ttf",
+    "Darwin": "/System/Library/Fonts/Supplemental/Arial.ttf",
+    "Linux": "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+}
+
+
+def resolver_fonte() -> Path:
+    caminho = os.environ.get("CAPTION_FONT_FILE") or FONTES_PADRAO_POR_SO.get(
+        platform.system(), ""
+    )
+    if not caminho or not Path(caminho).exists():
+        raise FileNotFoundError(
+            "Não achei uma fonte .ttf pra legenda. Defina CAPTION_FONT_FILE no "
+            "config/.env apontando pro caminho de uma fonte instalada no seu sistema."
+        )
+    return Path(caminho)
 
 
 def duracao_audio(path: Path) -> float:
@@ -51,10 +77,14 @@ def montar_cena(imagem: Path, audio: Path, destino: Path, texto_legenda: str):
         .replace("%", r"\%")
     )
 
+    # Caminho da fonte pro filtro ffmpeg: barras normais e ":" escapado
+    # (ex: Windows "C:\Windows\Fonts\arial.ttf" -> "C\:/Windows/Fonts/arial.ttf")
+    fontfile = str(resolver_fonte()).replace("\\", "/").replace(":", r"\:")
+
     filtro = (
         f"scale=8000:-1,"
         f"zoompan=z='min(zoom+0.0015,1.3)':d={frames}:s={LARGURA}x{ALTURA}:fps={fps},"
-        f"drawtext=text='{legenda_escapada}':fontcolor=white:fontsize=54:"
+        f"drawtext=fontfile='{fontfile}':text='{legenda_escapada}':fontcolor=white:fontsize=54:"
         f"borderw=3:bordercolor=black:x=(w-text_w)/2:y=h-350:"
         f"line_spacing=8:box=0"
     )
