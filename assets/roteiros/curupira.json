@@ -1,0 +1,30 @@
+{
+  "titulo": "Pés ao Contrário",
+  "lenda": "curupira",
+  "cenas": [
+    {
+      "texto": "Numa trilha perdida no meio da mata, um caçador segue pegadas fundas na lama — só que elas apontam pro lado errado.",
+      "descricao_visual": "close nas pegadas invertidas na lama molhada, luz fraca de lua entre as árvores, dark folk art, atmosfera tensa e úmida, sem texto"
+    },
+    {
+      "texto": "Ele ri, lembra das histórias que a avó contava, mas o mato fica quieto demais, como se a floresta inteira estivesse prendendo a respiração, esperando ele dar mais um passo.",
+      "descricao_visual": "silhueta de caçador visto de costas entre troncos altos e retorcidos, floresta densa e escura, névoa baixa, dark folk art"
+    },
+    {
+      "texto": "De repente ouve seu nome, chamado bem baixinho, com a voz do próprio irmão que ficou em casa. Ele se vira rápido. Não tem ninguém — só o vento mexendo nas folhas.",
+      "descricao_visual": "caçador virando-se numa clareira enevoada, olhando por cima do ombro, sombras alongadas ao redor, sensação de estar sendo observado, dark folk art"
+    },
+    {
+      "texto": "As pegadas agora estão por toda a volta, formando um círculo fechado ao redor dele, como se algo tivesse passado ali a noite inteira, sem nunca sair do lugar.",
+      "descricao_visual": "vista de cima mostrando um círculo de pegadas invertidas na lama ao redor de uma figura pequena e imóvel, luz de lua fria, dark folk art"
+    },
+    {
+      "texto": "Ele tenta correr, mas os próprios pés não obedecem. Quando olha pro chão pra entender por quê, o sangue gela: são os pés dele que agora apontam pra trás.",
+      "descricao_visual": "close nos pés do caçador virados ao contrário sobre a lama, expressão de pânico fora de quadro, dark folk art, tensão crescente"
+    },
+    {
+      "texto": "Entre as folhas, um sorriso vermelho se abre devagar. O Curupira não protege a mata de quem caça — ele guarda pra sempre quem se perde nela.",
+      "descricao_visual": "rosto sorridente parcialmente escondido pela folhagem escura, olhos e sorriso vermelhos brilhando na penumbra, cabelo cor de fogo, dark folk art, clímax de terror, sem elementos com direitos autorais"
+    }
+  ]
+}
