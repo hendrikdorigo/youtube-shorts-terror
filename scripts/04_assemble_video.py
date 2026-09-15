@@ -82,11 +82,11 @@ def montar_cena(imagem: Path, audio: Path, destino: Path, texto_legenda: str):
     fontfile = str(resolver_fonte()).replace("\\", "/").replace(":", r"\:")
 
     filtro = (
-        f"scale=8000:-1,"
+        f"[0:v]scale=8000:-1,"
         f"zoompan=z='min(zoom+0.0015,1.3)':d={frames}:s={LARGURA}x{ALTURA}:fps={fps},"
         f"drawtext=fontfile='{fontfile}':text='{legenda_escapada}':fontcolor=white:fontsize=54:"
         f"borderw=3:bordercolor=black:x=(w-text_w)/2:y=h-350:"
-        f"line_spacing=8:box=0"
+        f"line_spacing=8:box=0[vout]"
     )
 
     subprocess.run(
@@ -95,7 +95,7 @@ def montar_cena(imagem: Path, audio: Path, destino: Path, texto_legenda: str):
             "-loop", "1", "-i", str(imagem),
             "-i", str(audio),
             "-filter_complex", filtro,
-            "-map", "0:v", "-map", "1:a",
+            "-map", "[vout]", "-map", "1:a",
             "-c:v", "libx264", "-c:a", "aac",
             "-t", str(dur),
             "-pix_fmt", "yuv420p",
