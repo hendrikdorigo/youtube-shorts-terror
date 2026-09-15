@@ -17,7 +17,7 @@ SCRIPTS_DIR = Path(__file__).parent
 def rodar(script: str, lenda: str):
     print(f"\n{'=' * 50}\n▶ Rodando {script}\n{'=' * 50}")
     resultado = subprocess.run(
-        [sys.executable, str(SCRIPTS_DIR / script), "--lenda", lenda]
+        [sys.executable, str(SCRIPTS_DIR / script), "--lenda", lenda], check=False
     )
     if resultado.returncode != 0:
         print(f"Erro em {script}. Pipeline interrompido.")
